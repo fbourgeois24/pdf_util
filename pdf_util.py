@@ -1,4 +1,6 @@
 from fpdf import FPDF # Install with 'pip install fpdf'
+import logging as log
+
 class PDF(FPDF):
 	def footer(self):
 		# Go to 1.5 cm from bottom
@@ -41,6 +43,8 @@ class PDF(FPDF):
 					emphasize_color: emphasize color (if other than black) 
 		
 		"""
+		self.font_size = 6
+		self.font_style = ''
 		default_style = self.font_style
 		if emphasize_style == None:
 			emphasize_style = default_style
@@ -137,7 +141,7 @@ class PDF(FPDF):
 		else:
 			x_left = self.get_x()
 		x_right = self.epw + x_left
-		if  not isinstance(col_width, list):
+		if not isinstance(col_width, list):
 			if x_start:
 				self.set_x(x_start)
 			for datum in header:
@@ -165,10 +169,14 @@ class PDF(FPDF):
 		else:
 			if x_start:
 				self.set_x(x_start)
+			self.set_text_color(*emphasize_color)
+			self.set_font(style=emphasize_style)
 			for i in range(len(header)):
 				datum = header[i]
 				self.multi_cell(col_width[i], line_height, datum, border=border, align=align_header, ln=3, max_line_height=self.font_size)
 				x_right = self.get_x()
+			self.set_text_color(0,0,0)
+			self.set_font(style=default_style)
 			self.ln(line_height) # move cursor back to the left margin
 			y2 = self.get_y()
 			self.line(x_left,y1,x_right,y1)
@@ -179,19 +187,21 @@ class PDF(FPDF):
 				if x_start:
 					self.set_x(x_start)
 				row = data[i]
+				# line_height = self.font_size * max([str(item).count("\n") + self.get_string_width(max([str(j) for j in row])) for item in row])
 				for i in range(len(row)):
-					datum = row[i]
-					if not isinstance(datum, str):
-						datum = str(datum)
+					datum = str(row[i])
 					adjusted_col_width = col_width[i]
-					if datum in emphasize_data:
-						self.set_text_color(*emphasize_color)
-						self.set_font(style=emphasize_style)
-						self.multi_cell(adjusted_col_width, line_height, datum, border=border, align=align_data, ln=3, max_line_height=self.font_size)
-						self.set_text_color(0,0,0)
-						self.set_font(style=default_style)
-					else:
-						self.multi_cell(adjusted_col_width, line_height, datum, border=border, align=align_data, ln=3, max_line_height=self.font_size) # ln = 3 - move cursor to right with same vertical offset # this uses an object named self
+					# if datum in emphasize_data:
+					# 	self.set_text_color(*emphasize_color)
+					# 	self.set_font(style=emphasize_style)
+					# 	self.multi_cell(adjusted_col_width, line_height, datum, border=border, align=align_data, ln=3, max_line_height=self.font_size)
+					# 	self.set_text_color(0,0,0)
+					# 	self.set_font(style=default_style)
+					# else:
+					if self.get_string_width(datum) > adjusted_col_width or datum.count("\n") > 0:
+						datum = "\n" + datum
+					log.warning(datum)
+					self.multi_cell(adjusted_col_width, line_height, datum, border=border, align=align_data, ln=3, max_line_height=self.font_size) # ln = 3 - move cursor to right with same vertical offset # this uses an object named self
 				self.ln(line_height) # move cursor back to the left margin
 		y3 = self.get_y()
 		self.line(x_left,y3,x_right,y3)
