@@ -1,4 +1,4 @@
-from fpdf import FPDF # Install with 'pip install fpdf'
+from fpdf import FPDF # Install with 'pip install fpdf2'
 import logging as log
 
 class PDF(FPDF):
@@ -200,7 +200,6 @@ class PDF(FPDF):
 					# else:
 					if self.get_string_width(datum) > adjusted_col_width or datum.count("\n") > 0:
 						datum = "\n" + datum
-					log.warning(datum)
 					self.multi_cell(adjusted_col_width, line_height, datum, border=border, align=align_data, ln=3, max_line_height=self.font_size) # ln = 3 - move cursor to right with same vertical offset # this uses an object named self
 				self.ln(line_height) # move cursor back to the left margin
 		y3 = self.get_y()
