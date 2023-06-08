@@ -12,7 +12,7 @@ class PDF(FPDF):
 			# Print current and total page numbers
 			self.cell(0, 10, 'Page %s' % self.page_no() + '/{nb}', 0, 0, 'C')
 	def create_table(self, table_data, title='', data_size = 10, title_size=12, align_data='L', align_header='L', cell_width='even', x_start='x_default', \
-		emphasize_data=[], emphasize_style=None,emphasize_color=(0,0,0), border=0): 
+		emphasize_data=[], emphasize_style=None,emphasize_color=(0,0,0), border=0, cell_height=1.5): 
 		"""
 		table_data: 
 					list of lists with first element being list of headers
@@ -43,7 +43,8 @@ class PDF(FPDF):
 					which data elements are to be emphasized - pass as list 
 					emphasize_style: the font style you want emphaized data to take
 					emphasize_color: emphasize color (if other than black) 
-		
+		cell_height:
+					Multiplicateur de la taille de la police pour définir la hauteur de la cellule
 		"""
 		self.font_size = 6
 		self.font_style = ''
@@ -101,7 +102,7 @@ class PDF(FPDF):
 			header = table_data[0]
 			data = table_data[1:]
 
-		line_height = self.font_size * 2.5
+		line_height = self.font_size * cell_height
 
 		col_width = get_col_widths()
 		self.set_font(size=title_size)
